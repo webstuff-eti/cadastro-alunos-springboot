@@ -21,7 +21,7 @@ public interface AlunoController {
     public ResponseEntity<AlunoResponseDto> buscarPorEmail(@PathVariable("email") String email);
     public ResponseEntity buscarPorCpf(@PathVariable("cpf") String documento);
     public ResponseEntity<?> atualizar( @Valid @RequestBody AlunoRequestDto alunoRequestDto, BindingResult result);
-    public ResponseEntity<AlunoResponseDto> removerPorId(@PathVariable("id") Long id);
-    public ResponseEntity<AlunoResponseDto> removerPorEmail(@PathVariable("email") String email);
-    public ResponseEntity<AlunoResponseDto> removerPorCpf(@PathVariable("cpf") String cpf);
+    public ResponseEntity<?> removerPorId(@PathVariable("id") Long id);
+    public ResponseEntity<?> removerPorEmail(@PathVariable("email") String email);
+    public ResponseEntity<?> removerPorCpf(@PathVariable("cpf") String cpf);
 }

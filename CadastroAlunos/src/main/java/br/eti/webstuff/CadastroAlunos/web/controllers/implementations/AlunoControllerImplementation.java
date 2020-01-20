@@ -6,6 +6,7 @@ import br.eti.webstuff.CadastroAlunos.services.AlunoService;
 import br.eti.webstuff.CadastroAlunos.services.ErrrorValidationService;
 import br.eti.webstuff.CadastroAlunos.web.controllers.AlunoController;
 import br.eti.webstuff.CadastroAlunos.web.controllers.converters.ConverteAluno;
+import br.eti.webstuff.CadastroAlunos.web.controllers.error.ResourceNotFoundException;
 import br.eti.webstuff.CadastroAlunos.web.dto.request.AlunoRequestDto;
 import br.eti.webstuff.CadastroAlunos.web.dto.response.AlunoResponseDto;
 import io.swagger.annotations.ApiOperation;
@@ -172,68 +173,78 @@ public class AlunoControllerImplementation implements AlunoController {
      * Remove um aluno por ID.
      *
      * @param id
-     * @return ResponseEntity<Response<String>>
+     * @return ResponseEntity<?>
      */
     @DeleteMapping(value = "/id/{id}")
     @Override
-    public ResponseEntity<AlunoResponseDto> removerPorId(@PathVariable("id") Long id) {
+    public ResponseEntity<?> removerPorId(@PathVariable("id") Long id) {
         log.info("Removendo aluno pelo id: {}", id);
-        ConverteAluno converte = new ConverteAluno();
-        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorId(id);
-        AlunoResponseDto alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( aluno.get() );
-        if (aluno.isPresent()) {
-            log.info("Metodo removerPorId - Remove aluno: sucesso!");
-            this.alunoService.removeAlunoPorId(id);
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.ACCEPTED);
-        } else {
-            log.info("Metodo removerPorId - Remove aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
-        }
+        verificaSeAlunoExistePorId( id );
+        this.alunoService.removeAlunoPorId(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
      * Remove um aluno por Email.
      *
      * @param email
-     * @return ResponseEntity<Response<String>>
+     * @return ResponseEntity<?>
      */
     @DeleteMapping(value = "/email/{email}")
     @Override
-    public ResponseEntity<AlunoResponseDto> removerPorEmail(@PathVariable("email") String email) {
+    public ResponseEntity<?> removerPorEmail(@PathVariable("email") String email) {
         log.info("Removendo aluno pelo email {}", email);
-        ConverteAluno converte = new ConverteAluno();
-        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorEmail(email);
-        AlunoResponseDto alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( aluno.get() );
-        if (aluno.isPresent()) {
-            log.info("Metodo removerPorEmail - Remove aluno: sucesso!");
-            this.alunoService.removeAlunoPorEmail(aluno.get().getEmail());
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.ACCEPTED);
-        } else {
-            log.info("Metodo removerPorEmail - Remove aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
-        }
+        verificasEAlunoExistePorEmail( email );
+        this.alunoService.removeAlunoPorEmail(email);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
      * Remove um aluno por CPF.
      *
      * @param cpf
-     * @return ResponseEntity<Response<String>>
+     * @return ResponseEntity<Response<?>>
      */
     @DeleteMapping(value = "/cpf/{cpf}")
     @Override
-    public ResponseEntity<AlunoResponseDto> removerPorCpf(@PathVariable("cpf") String cpf) {
-        log.info("Removendo aluno pelo cpf {}", cpf);
-        ConverteAluno converte = new ConverteAluno();
+    public ResponseEntity<?> removerPorCpf(@PathVariable("cpf") String cpf) {
+        log.info("Remove aluno pelo cpf {}", cpf);
+        verificaSeAlunoExistePorCpf( cpf );
+        this.alunoService.removeAlunoPorCpf(cpf);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+
+
+
+    
+
+     private void verificaSeAlunoExistePorId(Long id){
+         Optional<Aluno> aluno = this.alunoService.buscarAlunoPorId(id);
+         if(!aluno.isPresent()){
+             log.info("Aluno Não existe!");
+             throw new ResourceNotFoundException( "Aluno não encontrado para o id: " + id );
+         }
+     }
+
+
+    private void verificaSeAlunoExistePorCpf(String cpf){
         Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
-        AlunoResponseDto alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( aluno.get() );
-        if (aluno.isPresent()) {
-            log.info("Metodo removerPorCpf - Remove aluno: sucesso!");
-            this.alunoService.removeAlunoPorCpf(aluno.get().getCpf());
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.ACCEPTED);
-        } else {
-            log.info("Metodo removerPorCpf - Remove aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
+        if(!aluno.isPresent()){
+            log.info("Aluno Não existe!");
+            throw new ResourceNotFoundException( "Aluno não encontrado para o cpf: " + cpf );
         }
     }
+
+    private void verificasEAlunoExistePorEmail(String email){
+        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf( email );
+        if(!aluno.isPresent()){
+            log.info("Aluno Não existe!");
+            throw new ResourceNotFoundException( "Aluno não encontrado para o email: " + email );
+        }
+    }
+
+
+
 }
