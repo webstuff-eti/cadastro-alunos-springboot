@@ -1,24 +1,32 @@
 package br.eti.webstuff.CadastroAlunos.web.dto.request;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @NoArgsConstructor
 @Data
 @ToString
 public class AlunoRequestDto {
 
-    @NotBlank(message = "Nome inválido")
-    public String nome;
+    @ApiModelProperty("Nome do aluno")
+    @NotEmpty(message = "O  campo email não pode ser vazio")
+    @NotBlank(message="O campo nome deve ser inserido")
+    private String nome;
 
-    @NotBlank(message="CPF invalido")
+    @ApiModelProperty("CPF do aluno")
+    @NotEmpty(message = "O campo cpf não pode ser vazio")
+    @NotBlank(message="O campo cpf deve ser inserido")
     private String cpf;
 
-    @Email(message="Email inválidp")
-    @NotBlank(message="Email vazio")
+    @ApiModelProperty("Email do aluno")
+    @NotEmpty(message = "O campo email não pode ser vazio")
+    @NotBlank(message="O campo email deve ser inserido")
+    @Email(message = "Digite um email válido")
     private String email;
 }
