@@ -6,32 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResourceNotFoundDetails extends ErrorDetails{
 
-    private String title;
-    private int status;
-    private String detail;
-    private Long timestamp;
-    private String developerMessage;
-
-    //Criar apenas métodos getters vém da herança
-//    public String getTitle() {
-//        return title;
-//    }
-//
-//    public int getStatus() {
-//        return status;
-//    }
-//
-//    public String getDetail() {
-//        return detail;
-//    }
-//
-//    public Long getTimestamp() {
-//        return timestamp;
-//    }
-//
-//    public String getDeveloperMessage() {
-//        return developerMessage;
-//    }
 
     public static final class Builder {
         private String title;

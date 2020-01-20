@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Cadastra um novo aluno")
     @PostMapping
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> cadastrar(@Valid AlunoRequestDto alunoRequestDto, BindingResult result) {
         Optional<Map<String, String>> errorMap = errrorValidationService.validateInputData(result);
@@ -161,6 +163,7 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Atualiza aluno")
     @PutMapping(value = "/atualiza")
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> atualizar(@Valid AlunoRequestDto alunoRequestDto, BindingResult result)  {
         log.info("Atualizando aluno: {}", alunoRequestDto.toString());
@@ -193,6 +196,7 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Remove aluno por id")
     @DeleteMapping(value = "/id/{id}")
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> removerPorId(@PathVariable("id") Long id) {
         log.info("Removendo aluno pelo id: {}", id);
@@ -208,6 +212,7 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Remove aluno por email")
     @DeleteMapping(value = "/email/{email}")
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> removerPorEmail(@PathVariable("email") String email) {
         log.info("Removendo aluno pelo email {}", email);
@@ -223,6 +228,7 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Remove aluno por cpf")
     @DeleteMapping(value = "/cpf/{cpf}")
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> removerPorCpf(@PathVariable("cpf") String cpf) {
         log.info("Remove aluno pelo cpf {}", cpf);
