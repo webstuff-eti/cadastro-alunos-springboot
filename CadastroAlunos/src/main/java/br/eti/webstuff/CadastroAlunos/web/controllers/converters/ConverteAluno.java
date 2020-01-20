@@ -11,10 +11,8 @@ public class ConverteAluno {
 
     /**
      * Converte Aluno para AlunoResponseDto.
-     *
      * @param aluno
-     *
-     * @return AlunoResponseDto
+     * @return alunoResponseDto
      */
     public AlunoResponseDto converteAlunoParaAlunoResponseDto(Aluno aluno) {
         AlunoResponseDto alunoResponseDto = new AlunoResponseDto();
@@ -31,9 +29,7 @@ public class ConverteAluno {
 
     /**
      * Converte AlunoRequestDto para Aluno.
-     *
      * @param alunoRequestDto
-     *
      * @return aluno
      */
     public Aluno converteAlunoRequestDtoParaAluno(AlunoRequestDto alunoRequestDto) {
@@ -46,13 +42,10 @@ public class ConverteAluno {
         return aluno;
     }
 
-
     /**
      * Converte AlunoRequestDto para Aluno.
-     *
-     * @param List<Aluno> alunos
-     *
-     * @return List<AlunoResponseDto>
+     * @param alunos
+     * @return alunosResponseDto
      */
     public List<AlunoResponseDto> converteListaAlunoParaAlunoListaResponseDto(List<Aluno> alunos) {
         List<AlunoResponseDto> alunosResponseDto = new ArrayList<>();

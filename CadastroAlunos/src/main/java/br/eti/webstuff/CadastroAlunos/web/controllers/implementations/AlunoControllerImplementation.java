@@ -45,31 +45,27 @@ public class AlunoControllerImplementation implements AlunoController {
      * Cadastra um novo aluno .
      *
      * @param alunoRequestDto
-     * @return ResponseEntity<Response < AlunoResponseDto>>
+     * @return ResponseEntity<?>
      */
     @ApiOperation(value = "Cadastra um novo aluno")
     @PostMapping
     @Override
     public ResponseEntity<?> cadastrar(@Valid AlunoRequestDto alunoRequestDto, BindingResult result) {
-
         Optional<Map<String, String>> errorMap = errrorValidationService.validateInputData(result);
         if (errorMap.isPresent()) return new ResponseEntity<>(errorMap.get(), HttpStatus.BAD_REQUEST);
-
-        log.info( "Cadastra uma pessoa: {}", alunoRequestDto.toString() );
+        verificaAlunoParaCadastro( alunoRequestDto.getCpf() );
         ConverteAluno converte = new ConverteAluno();
-        Aluno al = new Aluno();
-        Optional<Aluno> alunoBuscado = alunoService.buscarAlunoPorCpf( alunoRequestDto.getCpf() );
-        if(!alunoBuscado.isPresent()){
-            al = converte.converteAlunoRequestDtoParaAluno( alunoRequestDto );
-            log.info("Metodo cadastrar - cadastrar aluno: sucesso!");
-            Aluno alunoCadastrado = this.alunoService.cadastrarAluno( al );
-            return new ResponseEntity<AlunoResponseDto>(converte.converteAlunoParaAlunoResponseDto( alunoCadastrado ), HttpStatus.CREATED);
-        }else {
-            log.info( "Metodo cadastrar - cadastrar aluno: Já existe!" );
-            return new ResponseEntity<AlunoResponseDto>( converte.converteAlunoParaAlunoResponseDto( al ), HttpStatus.NO_CONTENT );
-        }
+        Aluno al = converte.converteAlunoRequestDtoParaAluno( alunoRequestDto );
+        Aluno alunoCadastrado = this.alunoService.cadastrarAluno( al );
+        log.info("Metodo cadastrar - cadastrar aluno: sucesso!");
+        return new ResponseEntity<AlunoResponseDto>(converte.converteAlunoParaAlunoResponseDto( alunoCadastrado ), HttpStatus.CREATED);
     }
 
+    /**
+     * Busca todos alunos cadastrados.
+     * @return ResponseEntity<List<Aluno> alunos>
+     */
+    @ApiOperation(value = "Busca todos alunos")
     @GetMapping(value = "/all")
     @Override
     public ResponseEntity<?> buscarTodosAlunos() {
@@ -85,96 +81,116 @@ public class AlunoControllerImplementation implements AlunoController {
         }
     }
 
+    /**
+     * Busca todos alunos por  página.
+     * @param numPage
+     * @param sizePage
+     * @return ResponseEntity<Pageable>
+     */
+    @ApiOperation(value = "Busca todos alunos por página")
     @GetMapping(value = "/page/all")
     @Override
-    public ResponseEntity<?> buscarTodosAlunosPorPaginacao(@RequestParam(value = "pagina", defaultValue = "0") int numPage,
-                                                           @RequestParam(value = "tamanho", defaultValue = "1") int sizePage) {
+    public ResponseEntity<?> buscarTodosAlunosPorPaginacao(@RequestParam(value = "numPage", defaultValue = "0") int numPage,
+                                                           @RequestParam(value = "sizePage", defaultValue = "1") int sizePage) {
         Pageable pagina = (Pageable) PageRequest.of(numPage, sizePage);
         return new ResponseEntity<>( this.alunoService.buscarTodosPorPaginacao( (Pageable) pagina ), HttpStatus.OK );
     }
 
+    /**
+     * Busca alunos por id.
+     * @param id
+     * @return ResponseEntity<AlunoResponseDto>
+     */
+    @ApiOperation(value = "Busca aluno por id")
     @GetMapping(value = "/busca/id/{id}")
     @Override
-    public ResponseEntity<AlunoResponseDto> buscarPorId(@PathVariable("id") Long id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable("id") Long id) {
         log.info("Busca aluno pelo id: {}", id);
-        ConverteAluno converte = new ConverteAluno();
-        AlunoResponseDto  alunoResponseDto = new AlunoResponseDto();
         Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorId( id );
-        if (alunoValido.isPresent()) {
-            log.info("Metodo buscarPorId - Busca aluno: sucesso!");
-            alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( alunoValido.get() );
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
-        } else {
+        if (!alunoValido.isPresent()) {
             log.info("Metodo buscarPorId - Busca aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<AlunoResponseDto>( HttpStatus.NOT_FOUND);
         }
+        AlunoResponseDto  alunoResponseDto = new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoValido.get() );
+        return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * Busca alunos por cpf.
+     * @param email
+     * @return ResponseEntity<AlunoResponseDto>
+     */
+    @ApiOperation(value = "Busca alunos por email")
     @GetMapping(value = "/busca/email/{email}")
     @Override
-    public ResponseEntity<AlunoResponseDto> buscarPorEmail(@PathVariable("email") String email) {
+    public ResponseEntity<?> buscarPorEmail(@PathVariable("email") String email) {
         log.info("Busca aluno pelo email: {}", email);
-        ConverteAluno converte = new ConverteAluno();
-        AlunoResponseDto  alunoResponseDto = new AlunoResponseDto();
         Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorEmail( email );
-        if (alunoValido.isPresent()) {
-            log.info("Metodo buscarPorEmail - Busca aluno: sucesso!");
-            alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( alunoValido.get() );
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
-        } else {
+        if (!alunoValido.isPresent()) {
             log.info("Metodo buscarPorEmail - Busca aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<AlunoResponseDto>( HttpStatus.NOT_FOUND);
         }
+        AlunoResponseDto  alunoResponseDto = new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoValido.get() );
+        return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * Busca alunos por email.
+     * @param documento
+     * @return ResponseEntity<AlunoResponseDto>
+     */
+    @ApiOperation(value = "Busca alunos por cpf")
     @GetMapping(value = "/busca/cpf/{documento}")
     @Override
-    public ResponseEntity<AlunoResponseDto> buscarPorCpf(@PathVariable("documento") String documento) {
+    public ResponseEntity<?> buscarPorCpf(@PathVariable("documento") String documento) {
         log.info("Busca aluno pelo cpf: {}", documento);
-        ConverteAluno converte = new ConverteAluno();
-        AlunoResponseDto  alunoResponseDto = new AlunoResponseDto();
         Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorCpf(documento );
-        if (alunoValido.isPresent()) {
-            log.info("Metodo buscarPorCpf - Busca aluno: sucesso!");
-            alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( alunoValido.get() );
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
-        } else {
-            log.info("Metodo buscarPorCpf - Busca aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
+        if (!alunoValido.isPresent()) {
+            log.info( "Metodo buscarPorEmail - Busca aluno: Não existe!" );
+            return new ResponseEntity<AlunoResponseDto>( HttpStatus.NOT_FOUND );
         }
+        AlunoResponseDto  alunoResponseDto =  new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoValido.get() );
+        return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * Altera um aluno cadastrado.
+     * @param alunoRequestDto
+     * @return ResponseEntity<AlunoResponseDto>
+     */
+    @ApiOperation(value = "Atualiza aluno")
     @PutMapping(value = "/atualiza")
     @Override
     public ResponseEntity<?> atualizar(@Valid AlunoRequestDto alunoRequestDto, BindingResult result)  {
+        log.info("Atualizando aluno: {}", alunoRequestDto.toString());
         Optional<Map<String, String>> errorMap = errrorValidationService.validateInputData(result);
         if (errorMap.isPresent()) return new ResponseEntity<>(errorMap.get(), HttpStatus.BAD_REQUEST);
-        log.info("Atualizando aluno: {}", alunoRequestDto.toString());
-        ConverteAluno converte = new ConverteAluno();
+
         Aluno alunoAtualiza = new Aluno();
-        Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorCpf(alunoRequestDto.getCpf() );
-        if(alunoValido.isPresent()) {
-            alunoAtualiza = converte.converteAlunoRequestDtoParaAluno( alunoRequestDto );
-            alunoAtualiza.setId( alunoValido.get().getId() );
-            alunoAtualiza.setDataCriacao( alunoValido.get().getDataCriacao() );
-        }
+
+        Optional<Aluno> alunoValido = verificaAlunoParaAtualizao( alunoRequestDto.getCpf() );
+
+        alunoAtualiza = new ConverteAluno().converteAlunoRequestDtoParaAluno( alunoRequestDto );
+        alunoAtualiza.setId( alunoValido.get().getId() );
+        alunoAtualiza.setDataCriacao( alunoValido.get().getDataCriacao() );
+
         alunoAtualiza =  this.alunoService.atualizarAluno(alunoAtualiza);
-        AlunoResponseDto  alunoResponseDto = converte.converteAlunoParaAlunoResponseDto( alunoAtualiza );
-        if (alunoAtualiza != null) {
-            log.info("Metodo atualizar - Atualiza aluno: sucesso!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.CREATED);
-        } else {
+
+        AlunoResponseDto  alunoResponseDto = new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoAtualiza );
+
+        if (alunoAtualiza == null) {
             log.info("Metodo atualizar - Atualiza aluno: Não existe!");
             return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
         }
+        return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.CREATED);
     }
 
     /**
      * Remove um aluno por ID.
-     *
      * @param id
-     * @return ResponseEntity<?>
+     * @return void
      */
+    @ApiOperation(value = "Remove aluno por id")
     @DeleteMapping(value = "/id/{id}")
     @Override
     public ResponseEntity<?> removerPorId(@PathVariable("id") Long id) {
@@ -185,11 +201,11 @@ public class AlunoControllerImplementation implements AlunoController {
     }
 
     /**
-     * Remove um aluno por Email.
-     *
+     * Remove um aluno por EMAIL.
      * @param email
-     * @return ResponseEntity<?>
+     * @return void
      */
+    @ApiOperation(value = "Remove aluno por email")
     @DeleteMapping(value = "/email/{email}")
     @Override
     public ResponseEntity<?> removerPorEmail(@PathVariable("email") String email) {
@@ -200,11 +216,11 @@ public class AlunoControllerImplementation implements AlunoController {
     }
 
     /**
-     * Remove um aluno por CPF.
-     *
+     * Remove um aluno por CPD.
      * @param cpf
-     * @return ResponseEntity<Response<?>>
+     * @return void
      */
+    @ApiOperation(value = "Remove aluno por cpf")
     @DeleteMapping(value = "/cpf/{cpf}")
     @Override
     public ResponseEntity<?> removerPorCpf(@PathVariable("cpf") String cpf) {
@@ -214,12 +230,6 @@ public class AlunoControllerImplementation implements AlunoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-
-
-
-    
-
      private void verificaSeAlunoExistePorId(Long id){
          Optional<Aluno> aluno = this.alunoService.buscarAlunoPorId(id);
          if(!aluno.isPresent()){
@@ -227,7 +237,6 @@ public class AlunoControllerImplementation implements AlunoController {
              throw new ResourceNotFoundException( "Aluno não encontrado para o id: " + id );
          }
      }
-
 
     private void verificaSeAlunoExistePorCpf(String cpf){
         Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
@@ -237,11 +246,28 @@ public class AlunoControllerImplementation implements AlunoController {
         }
     }
 
+    private Optional<Aluno> verificaAlunoParaAtualizao(String cpf){
+        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
+        if(!aluno.isPresent()){
+            log.info("Aluno Não existe!");
+            throw new ResourceNotFoundException( "Aluno não encontrado para o cpf: " + cpf );
+        }
+        return aluno;
+    }
+
     private void verificasEAlunoExistePorEmail(String email){
-        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf( email );
+        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorEmail( email );
         if(!aluno.isPresent()){
             log.info("Aluno Não existe!");
             throw new ResourceNotFoundException( "Aluno não encontrado para o email: " + email );
+        }
+    }
+
+    private void verificaAlunoParaCadastro(String cpf){
+        Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
+        if(aluno.isPresent()){
+            log.info("Aluno já existe!");
+            throw new ResourceNotFoundException( "Aluno encontrado para o : " + cpf );
         }
     }
 

@@ -42,8 +42,8 @@ public class AlunoServiceImplementation implements AlunoService {
 
     @Override
     public Optional<Aluno> buscarAlunoPorEmail(String email) {
-        Aluno alunoBuscado  = this.alunoRepository.findByEmail(email);
-        return Optional.ofNullable(this.alunoRepository.save(alunoBuscado));
+        log.info("Buscando um ALUNO para o EMAIL {}", email);
+        return Optional.ofNullable(this.alunoRepository.findByEmail(email));
     }
 
     @Override

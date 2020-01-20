@@ -12,7 +12,6 @@ import java.util.Optional;
 @Service
 public class ErrrorValidationServiceImplementation implements ErrrorValidationService {
 
-
     @Override
     public Optional<Map<String, String>> validateInputData(BindingResult result) {
         if (result.hasErrors()){
