@@ -7,6 +7,7 @@ import br.eti.webstuff.CadastroAlunos.services.ErrrorValidationService;
 import br.eti.webstuff.CadastroAlunos.web.controllers.AlunoController;
 import br.eti.webstuff.CadastroAlunos.web.controllers.converters.ConverteAluno;
 import br.eti.webstuff.CadastroAlunos.web.controllers.error.ResourceNotFoundException;
+import br.eti.webstuff.CadastroAlunos.web.controllers.handler.RestExceptionHandler;
 import br.eti.webstuff.CadastroAlunos.web.dto.request.AlunoRequestDto;
 import br.eti.webstuff.CadastroAlunos.web.dto.response.AlunoResponseDto;
 import io.swagger.annotations.ApiOperation;
@@ -109,7 +110,7 @@ public class AlunoControllerImplementation implements AlunoController {
         Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorId( id );
         if (!alunoValido.isPresent()) {
             log.info("Metodo buscarPorId - Busca aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>( HttpStatus.NOT_FOUND);
+            return new RestExceptionHandler().handleResourceNotFoundException( new ResourceNotFoundException( "Aluno não encontrado para o id: " + id ) );
         }
         AlunoResponseDto  alunoResponseDto = new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoValido.get() );
         return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
