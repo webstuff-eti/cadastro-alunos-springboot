@@ -53,58 +53,58 @@ public class AlunoControllerImplementation implements AlunoController {
     @Value("${log.buscar.aluno.id}")
     private String logBuscaAlunoId;
 
-    @Value("${log.buscar.aluno.email")
+    @Value("${log.buscar.aluno.email}")
     private String logBuscaAlunoEmail;
 
-    @Value("${log.buscar.aluno.cpf ")
+    @Value("${log.buscar.aluno.cpf}")
     private String logBuscaAlunoCpf;
 
-    @Value("${log.atualizar.aluno")
+    @Value("${log.atualizar.aluno}")
     private String logAtualizarAluno;
 
-    @Value("${log.deletar.aluno.id")
+    @Value("${log.deletar.aluno.id}")
     private String logDeletarAlunoId;
 
-    @Value("${log.deletar.aluno.email ")
+    @Value("${log.deletar.aluno.email}")
     private String logDeletarAlunoEmail;
 
-    @Value("${log.deletar.aluno.cpf")
+    @Value("${log.deletar.aluno.cpf}")
     private String logDeletarAlunoCpf;
 
-    @Value("${log.verifica.aluno.id ")
+    @Value("${log.verifica.aluno.id}")
     private String logVerificaAlunoId;
 
-    @Value("${log.verifica.aluno.cpf ")
+    @Value("${log.verifica.aluno.cpf}")
     private String logVerificaAlunoCpf;
 
-    @Value("${log.verifica.aluno.email ")
+    @Value("${log.verifica.aluno.email}")
     private String logVerificaAlunoEmail;
 
-    @Value("${log.verifica.aluno.atulizado")
+    @Value("${log.verifica.aluno.atulizado}")
     private String logVerificaAtualizado;
 
-    @Value("${log.verifica.aluno.cadastro")
+    @Value("${log.verifica.aluno.cadastro}")
     private String logVerificaCadastro;
 
-    @Value("${log.nao.existe.aluno")
+    @Value("${log.nao.existe.aluno}")
     private String logAlunoNaoExiste;
 
-    @Value("${log.existe.aluno")
+    @Value("${log.existe.aluno}")
     private String logAlunoExiste;
 
-    @Value("${log.aluno.exception.id")
+    @Value("${log.aluno.exception.id}")
     private String logAlunoIdException;
 
-    @Value("${log.aluno.exception.email")
+    @Value("${log.aluno.exception.email}")
     private String logAlunoEmailException;
 
-    @Value("${log.aluno.exception.cpf")
+    @Value("${log.aluno.exception.cpf}")
     private String logAlunoCpfException;
 
-    @Value("${log.aluno.exception.atualizado")
+    @Value("${log.aluno.exception.atualizado}")
     private String logAlunoAtualizadoException;
 
-    @Value("${log.aluno.exception.cadastro")
+    @Value("${log.aluno.exception.cadastro}")
     private String logAlunoCadastroException;
 
 
