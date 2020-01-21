@@ -10,7 +10,7 @@ import java.util.Date;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @Entity
 @Table(name = "aluno")

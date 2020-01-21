@@ -15,8 +15,8 @@ import javax.validation.constraints.NotEmpty;
 public class AlunoRequestDto {
 
     @ApiModelProperty("Nome do aluno")
-    @NotEmpty(message = "O  campo email não pode ser vazio")
-    @NotBlank(message="O campo nome deve ser inserido")
+    @NotEmpty(message = "O  campo nome não pode ser vazio")
+    @NotBlank(message="{name.not.blank}")
     private String nome;
 
     @ApiModelProperty("CPF do aluno")

@@ -12,7 +12,6 @@ public class ErrorDetails {
     private String developerMessage;
 
 
-    //TODO: Pode ser que não precise do Builder
     public static final class Builder {
         private String title;
         private int status;

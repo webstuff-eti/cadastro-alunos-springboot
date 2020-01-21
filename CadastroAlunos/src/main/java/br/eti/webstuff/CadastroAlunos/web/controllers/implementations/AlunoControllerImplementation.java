@@ -19,17 +19,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/aluno")
+@RequestMapping("/aluno")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class AlunoControllerImplementation implements AlunoController {
@@ -38,6 +36,7 @@ public class AlunoControllerImplementation implements AlunoController {
 
     private final AlunoService alunoService;
     private final ErrrorValidationService errrorValidationService;
+
 
     @Value("${paginacao.qtd_por_pagina}")
     private int qtdPorPagina;
@@ -51,11 +50,13 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Cadastra um novo aluno")
     @PostMapping
-    @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResponseEntity<?> cadastrar(@Valid AlunoRequestDto alunoRequestDto, BindingResult result) {
-        Optional<Map<String, String>> errorMap = errrorValidationService.validateInputData(result);
-        if (errorMap.isPresent()) return new ResponseEntity<>(errorMap.get(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> cadastrar(@RequestBody @Valid AlunoRequestDto alunoRequestDto, BindingResult result) {
+
+        if(!result.getAllErrors().isEmpty()){
+            return errrorValidationService.validateInputData( result );
+        }
+
         verificaAlunoParaCadastro( alunoRequestDto.getCpf() );
         ConverteAluno converte = new ConverteAluno();
         Aluno al = converte.converteAlunoRequestDtoParaAluno( alunoRequestDto );
@@ -131,7 +132,7 @@ public class AlunoControllerImplementation implements AlunoController {
         Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorEmail( email );
         if (!alunoValido.isPresent()) {
             log.info("Metodo buscarPorEmail - Busca aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>( HttpStatus.NOT_FOUND);
+            return new RestExceptionHandler().handleResourceNotFoundException( new ResourceNotFoundException( "Aluno não encontrado para o email: " + email ) );
         }
         AlunoResponseDto  alunoResponseDto = new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoValido.get() );
         return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
@@ -150,7 +151,7 @@ public class AlunoControllerImplementation implements AlunoController {
         Optional<Aluno> alunoValido = this.alunoService.buscarAlunoPorCpf(documento );
         if (!alunoValido.isPresent()) {
             log.info( "Metodo buscarPorEmail - Busca aluno: Não existe!" );
-            return new ResponseEntity<AlunoResponseDto>( HttpStatus.NOT_FOUND );
+            return new RestExceptionHandler().handleResourceNotFoundException( new ResourceNotFoundException( "Aluno não encontrado para o cpf: " + documento) );
         }
         AlunoResponseDto  alunoResponseDto =  new ConverteAluno().converteAlunoParaAlunoResponseDto( alunoValido.get() );
         return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.OK);
@@ -163,12 +164,12 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Atualiza aluno")
     @PutMapping(value = "/atualiza")
-    @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResponseEntity<?> atualizar(@Valid AlunoRequestDto alunoRequestDto, BindingResult result)  {
+    public ResponseEntity<?> atualizar(@RequestBody @Valid AlunoRequestDto alunoRequestDto, BindingResult result)  { //throws NoSuchAlgorithmException
         log.info("Atualizando aluno: {}", alunoRequestDto.toString());
-        Optional<Map<String, String>> errorMap = errrorValidationService.validateInputData(result);
-        if (errorMap.isPresent()) return new ResponseEntity<>(errorMap.get(), HttpStatus.BAD_REQUEST);
+        if(!result.getAllErrors().isEmpty()){
+            return errrorValidationService.validateInputData( result );
+        }
 
         Aluno alunoAtualiza = new Aluno();
 
@@ -184,7 +185,7 @@ public class AlunoControllerImplementation implements AlunoController {
 
         if (alunoAtualiza == null) {
             log.info("Metodo atualizar - Atualiza aluno: Não existe!");
-            return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.NO_CONTENT);
+            return new RestExceptionHandler().handleResourceNotFoundException( new ResourceNotFoundException( "Aluno não atualizado" ) );
         }
         return new ResponseEntity<AlunoResponseDto>(alunoResponseDto, HttpStatus.CREATED);
     }
@@ -196,7 +197,6 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Remove aluno por id")
     @DeleteMapping(value = "/id/{id}")
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> removerPorId(@PathVariable("id") Long id) {
         log.info("Removendo aluno pelo id: {}", id);
@@ -212,11 +212,10 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Remove aluno por email")
     @DeleteMapping(value = "/email/{email}")
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> removerPorEmail(@PathVariable("email") String email) {
         log.info("Removendo aluno pelo email {}", email);
-        verificasEAlunoExistePorEmail( email );
+        verificasEAlunoExistePorEmail( email.trim() );
         this.alunoService.removeAlunoPorEmail(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -228,11 +227,10 @@ public class AlunoControllerImplementation implements AlunoController {
      */
     @ApiOperation(value = "Remove aluno por cpf")
     @DeleteMapping(value = "/cpf/{cpf}")
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResponseEntity<?> removerPorCpf(@PathVariable("cpf") String cpf) {
         log.info("Remove aluno pelo cpf {}", cpf);
-        verificaSeAlunoExistePorCpf( cpf );
+        verificaSeAlunoExistePorCpf( cpf.trim() );
         this.alunoService.removeAlunoPorCpf(cpf);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -245,11 +243,12 @@ public class AlunoControllerImplementation implements AlunoController {
          }
      }
 
+
     private void verificaSeAlunoExistePorCpf(String cpf){
         Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
         if(!aluno.isPresent()){
             log.info("Aluno Não existe!");
-            throw new ResourceNotFoundException( "Aluno não encontrado para o cpf: " + cpf );
+            throw new ResourceNotFoundException( " Aluno não encontrado para o cpf: " + cpf );
         }
     }
 
@@ -257,7 +256,7 @@ public class AlunoControllerImplementation implements AlunoController {
         Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
         if(!aluno.isPresent()){
             log.info("Aluno Não existe!");
-            throw new ResourceNotFoundException( "Aluno não encontrado para o cpf: " + cpf );
+            throw new ResourceNotFoundException( " Aluno não encontrado para o cpf: " + cpf );
         }
         return aluno;
     }
@@ -274,7 +273,7 @@ public class AlunoControllerImplementation implements AlunoController {
         Optional<Aluno> aluno = this.alunoService.buscarAlunoPorCpf(cpf);
         if(aluno.isPresent()){
             log.info("Aluno já existe!");
-            throw new ResourceNotFoundException( "Aluno encontrado para o : " + cpf );
+            throw new ResourceNotFoundException(  "Aluno encontrado para o : " + cpf );
         }
     }
 
