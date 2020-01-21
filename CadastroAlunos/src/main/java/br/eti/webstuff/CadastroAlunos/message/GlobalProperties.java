@@ -8,7 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Data
 @Configuration
-@PropertySource("classpath:message.properties")
+@PropertySource("classpath:message-log.properties")
 @ConfigurationProperties
 public class GlobalProperties {
 
